@@ -14,9 +14,10 @@ const int startPin = 6;
 void setup() {
   // initialize serial communications at 115200 bps:
   Serial.begin(115200);
+  // set the time out to 10 mS.
   Serial.setTimeout(10);
   // set the iopins 
-   // make the pins outputs:  
+  // make the pins outputs:  
   pinMode(interlockPin, OUTPUT);
   pinMode(startPin, OUTPUT);
   
