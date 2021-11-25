@@ -21,6 +21,9 @@ void setup() {
   pinMode(interlockPin, OUTPUT);
   pinMode(startPin, OUTPUT);
   
+  //default no active
+  digitalWrite(startPin, HIGH);
+  digitalWrite(interlockPin, HIGH);
 }
 
 
@@ -39,7 +42,7 @@ void loop()
       
       if(data.indexOf("*IDN?") >= 0)
       {
-        Serial.println("RC1 Controller, 0.0.1");
+        Serial.println("RC1 Controller, 0.1.0");
       }
       else if(data.indexOf("CURRENT?") >= 0)      
       {
@@ -47,24 +50,27 @@ void loop()
       }
       else if(data.indexOf("LSR 1") >= 0)
       {
-        // set the LED with the ledState of the variable:
-       digitalWrite(startPin, HIGH);
+        // the pin is low active 
+       digitalWrite(startPin, LOW);
         
         Serial.println("OK");
       }
       else if(data.indexOf("LSR 0") >= 0)
       {
-        digitalWrite(startPin, LOW);
+        // the pin is low active 
+        digitalWrite(startPin, HIGH);
         Serial.println("OK");
       }
       else if(data.indexOf("INTL 1") >= 0)
       {
-        digitalWrite(interlockPin, HIGH);
+        // the pin is low active 
+        digitalWrite(interlockPin, LOW);
         Serial.println("OK");
       }
       else if(data.indexOf("INTL 0") >= 0)
       {
-        digitalWrite(interlockPin, LOW);
+        // the pin is low active 
+        digitalWrite(interlockPin, HIGH);
         Serial.println("OK");
       }
       else
@@ -84,9 +90,9 @@ void loop()
 void SendCurrentMeasurement() 
 {
 
-  int sensorValue1 = 0;
-  int sensorValue2 = 0;
-  int sensorValue3 = 0;
+  uint32_t sensorValue1 = 0;
+  uint32_t sensorValue2 = 0;
+  uint32_t sensorValue3 = 0;
 
   for(int counter = 0; counter < (1 << EXTRA_BITS); ++counter)
   {
