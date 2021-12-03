@@ -10,6 +10,8 @@ String data = "";
 // pins for the LEDs:
 const int interlockPin = 5;
 const int startPin = 6;
+const int pwmPinStart = 2;      // PWM to pin 2
+const int fiberPin = 13;
 
 void setup() {
   // initialize serial communications at 115200 bps:
@@ -20,10 +22,23 @@ void setup() {
   // make the pins outputs:  
   pinMode(interlockPin, OUTPUT);
   pinMode(startPin, OUTPUT);
-  
+  pinMode(pwmPinStart, OUTPUT);  // sets the pin as output
+  pinMode(pwmPinStart + 1, OUTPUT);  // sets the pin as output
+  pinMode(pwmPinStart + 2, OUTPUT);  // sets the pin as output
+  pinMode(fiberPin, OUTPUT);  // sets the pin as output
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
+  pinMode(A2, INPUT);
+    
   //default no active
   digitalWrite(startPin, HIGH);
   digitalWrite(interlockPin, HIGH);
+  analogWrite(pwmPinStart, 0);
+  analogWrite(pwmPinStart + 1, 0);
+  analogWrite(pwmPinStart + 2, 0);
+  digitalWrite(fiberPin, LOW);
+
+  
 }
 
 
@@ -42,7 +57,7 @@ void loop()
       
       if(data.indexOf("*IDN?") >= 0)
       {
-        Serial.println("RC1 Controller, 0.1.0");
+        Serial.println("RC1 Controller, 0.2.100");
       }
       else if(data.indexOf("CURRENT?") >= 0)      
       {
@@ -72,6 +87,49 @@ void loop()
         // the pin is low active 
         digitalWrite(interlockPin, HIGH);
         Serial.println("OK");
+      }
+      else if(data.indexOf("FIBER 0") >= 0)
+      {
+        digitalWrite(fiberPin, LOW);
+        Serial.println("OK");
+      }
+      else if(data.indexOf("FIBER 1") >= 0)
+      {
+        digitalWrite(fiberPin, HIGH);
+        Serial.println("OK");
+      }
+      
+      else if(data.indexOf("PWM") >= 0)
+      {
+        int indexSpace = data.indexOf(" ");
+
+        if(indexSpace >= 0)
+        {
+          data = data.substring(indexSpace + 1);
+
+          char tmpBuffer[50];
+          int port = 0;
+          int setting = -1;
+          data.toCharArray(tmpBuffer, 50);
+          
+          int convert = sscanf(tmpBuffer, "%i,%i", &port,&setting);
+          // 168 is max to 3.3 volt
+          if(setting > 169)
+          {
+            setting = 169;
+          }
+          else if(setting < 0)
+          {
+            setting = 0;
+          }
+          
+          analogWrite(pwmPinStart + port - 1, setting);
+          Serial.println("OK");
+        }
+        else
+        {
+          Serial.println("ERROR 1");
+        }
       }
       else
       {
